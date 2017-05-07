@@ -1,5 +1,10 @@
 package de.hska.muon.client;
 
+import com.googlecode.cqengine.ConcurrentIndexedCollection;
+import com.googlecode.cqengine.IndexedCollection;
+import com.googlecode.cqengine.index.navigable.NavigableIndex;
+import com.googlecode.cqengine.query.Query;
+import com.googlecode.cqengine.resultset.ResultSet;
 import de.hska.muon.model.Category;
 import de.hska.muon.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +16,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.googlecode.cqengine.query.QueryFactory.equal;
 import static de.hska.muon.client.Clients.createHeaderWithUserId;
 
 /**
@@ -27,10 +35,16 @@ public class ProductClient {
     private static final String PRODUCT_SERVICE_URI = "http://product-service/products";
 
     private final RestTemplate restTemplate;
+    // TODO: Is that the way to go?
+    /*
+     * caches all products.
+     */
+    private final IndexedCollection<Product> products = new ConcurrentIndexedCollection<>();
 
     @Autowired
     public ProductClient(final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+        products.addIndex(NavigableIndex.onAttribute(Product.CATEGORY_ID));
     }
 
     /**
@@ -41,9 +55,12 @@ public class ProductClient {
      * @return The stored product.
      */
     public Product createProduct(final Product product, final int userId) {
+        // TODO: Is the categoryId set here already or do we have to set it manually?
+        products.add(product);
         HttpEntity<Product> request = new HttpEntity<>(product, createHeaderWithUserId(userId));
         return restTemplate.postForObject(PRODUCT_SERVICE_URI, request, Product.class);
     }
+
 
     /**
      * @param query
@@ -86,22 +103,25 @@ public class ProductClient {
      * @param id The id of the product which should be retired.
      * @return The Product or null if no product could be found.
      */
-    public Product getProduct(final int id) {
+    public Product getProduct(final String id) {
         final Product product = restTemplate.getForObject(PRODUCT_SERVICE_URI + id, Product.class);
         if (product == null)  return null;
 
         addCategoryToProduct(product);
-        // productCache.putIfAbsent(productId, tmpProduct);
+        // TODO: Test if this is really working right!
+        products.update(Arrays.asList(product), Arrays.asList(product));
         return product;
     }
 
     /**
      * Deletes a product with the given id.
      */
-    public ResponseEntity<Void> deleteProduct(final int id, final int userId) {
+    public ResponseEntity<Void> deleteProduct(final String id, final int userId) {
+        products.removeIf(product -> product.getProductId().equals(id));
         HttpEntity<?> request = new HttpEntity<>(createHeaderWithUserId(userId));
         return restTemplate.exchange(PRODUCT_SERVICE_URI + "{productId}", HttpMethod.DELETE, request, Void.class, id);
     }
+
 
     // -------------------------------------------- Private-Helper ------------------------------------------------------
 
@@ -122,4 +142,10 @@ public class ProductClient {
         return Optional.empty();
     }
 
+    public boolean isCategoryUsed(final Integer id) {
+        Query<Product> query = equal(Product.CATEGORY_ID, id);
+        try (ResultSet<Product> rs = products.retrieve(query)) {
+            return rs.size() > 0;
+        }
+    }
 }

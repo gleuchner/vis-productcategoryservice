@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import static de.hska.muon.client.Clients.createHeaderWithUserId;
 
@@ -51,13 +52,11 @@ public class CategoryClient {
      * Tries to retrieve the category for the given id.
      *
      * @param id The id of the category.
-     * @param userId The user who wants to retrieve the category.
      *
      * @return The category if the category could be found, null otherwise.
      */
-    public Category getCategory(final int id, final int userId) {
-        final Category category = restTemplate.getForObject(CATEGORY_SERVICE_URL + "{categoryId}", Category.class, id);
-        return category;
+    public Optional<Category> getCategory(final int id) {
+        return Optional.ofNullable(restTemplate.getForObject(CATEGORY_SERVICE_URL + "{categoryId}", Category.class, id));
     }
 
     /**

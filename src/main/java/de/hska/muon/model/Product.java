@@ -1,5 +1,8 @@
 package de.hska.muon.model;
 
+import com.googlecode.cqengine.attribute.SimpleAttribute;
+import com.googlecode.cqengine.query.option.QueryOptions;
+
 /**
  * Represents a product.
  *
@@ -21,6 +24,18 @@ public class Product {
 
     private String categoryName;
     private int categoryId;
+
+
+    // -- Cq-Attributes
+    public static final SimpleAttribute<Product, String> PROCUCT_ID = new SimpleAttribute<Product, String>("productId") {
+        public String getValue(Product product, QueryOptions queryOptions) { return product.getProductId(); }
+    };
+
+    public static final SimpleAttribute<Product, Integer> CATEGORY_ID = new SimpleAttribute<Product, Integer>("categoryId") {
+        public Integer getValue(Product product, QueryOptions queryOptions) { return product.getCategoryId(); }
+    };
+
+    // -- Getter and setters
 
     public String getProductId() {
         return productId;
