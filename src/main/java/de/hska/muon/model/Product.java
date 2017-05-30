@@ -17,18 +17,18 @@ public class Product {
 
     }
 
-    private String productId;
+    private Integer productId;
     private String details;
     private String name;
-    private double price;
+    private Integer price;
 
     private String categoryName;
-    private int categoryId;
+    private Integer categoryId;
 
 
     // -- Cq-Attributes
-    public static final SimpleAttribute<Product, String> PROCUCT_ID = new SimpleAttribute<Product, String>("productId") {
-        public String getValue(Product product, QueryOptions queryOptions) { return product.getProductId(); }
+    public static final SimpleAttribute<Product, Integer> PROCUCT_ID = new SimpleAttribute<Product, Integer>("productId") {
+        public Integer getValue(Product product, QueryOptions queryOptions) { return product.getProductId(); }
     };
 
     public static final SimpleAttribute<Product, Integer> CATEGORY_ID = new SimpleAttribute<Product, Integer>("categoryId") {
@@ -37,11 +37,11 @@ public class Product {
 
     // -- Getter and setters
 
-    public String getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(final String productId) {
+    public void setProductId(final Integer productId) {
         this.productId = productId;
     }
 
@@ -61,19 +61,19 @@ public class Product {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
-    public void setPrice(final double price) {
+    public void setPrice(final Integer price) {
         this.price = price;
     }
 
-    public int getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(final int categoryId) {
+    public void setCategoryId(final Integer categoryId) {
         this.categoryId = categoryId;
     }
 
@@ -105,9 +105,9 @@ public class Product {
 
         final Product product = (Product) o;
 
-        if (Double.compare(product.price, price) != 0) return false;
+        if (price != product.price) return false;
         if (categoryId != product.categoryId) return false;
-        if (productId != null ? !productId.equals(product.productId) : product.productId != null) return false;
+        if (productId != product.productId) return false;
         if (details != null ? !details.equals(product.details) : product.details != null) return false;
         if (name != null ? !name.equals(product.name) : product.name != null) return false;
         return categoryName != null ? categoryName.equals(product.categoryName) : product.categoryName == null;
@@ -117,11 +117,10 @@ public class Product {
     public int hashCode() {
         int result;
         long temp;
-        result = productId != null ? productId.hashCode() : 0;
+        result = 31 *  productId;
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        temp = Double.doubleToLongBits(price);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + price;
         result = 31 * result + (categoryName != null ? categoryName.hashCode() : 0);
         result = 31 * result + categoryId;
         return result;

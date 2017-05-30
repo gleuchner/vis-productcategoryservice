@@ -5,21 +5,27 @@ import de.hska.muon.client.ProductClient;
 import de.hska.muon.model.Category;
 import de.hska.muon.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * This class represents the rest-api of the product and category composite-service.
  *
  * Created by amish on 5/4/17.
  */
+
 @RestController
 public class ProductCategoryService {
 
     private static final ResponseEntity<Category> CATEGORY_NOT_FOUND = new ResponseEntity<>(HttpStatus.NOT_FOUND);
     private final ProductClient products;
     private final CategoryClient categories;
+
 
     @Autowired
     public ProductCategoryService(final ProductClient products, final CategoryClient categories) {
@@ -36,13 +42,13 @@ public class ProductCategoryService {
     }
 
     @RequestMapping(value = "/products/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Product> getProduct(@PathVariable final String id) {
+    public ResponseEntity<Product> getProduct(@PathVariable final Integer id) {
         return new ResponseEntity<>(products.getProduct(id), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/products/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProduct(@RequestHeader(value = "userId") final Integer userId,
-                                              @PathVariable final String id) {
+                                              @PathVariable final Integer id) {
         return products.deleteProduct(id, userId);
     }
 
@@ -87,4 +93,5 @@ public class ProductCategoryService {
     private static ResponseEntity<Category> toOkEntity(final Category category) {
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
+
 }

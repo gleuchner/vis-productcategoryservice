@@ -5,19 +5,29 @@ import com.googlecode.cqengine.IndexedCollection;
 import com.googlecode.cqengine.index.navigable.NavigableIndex;
 import com.googlecode.cqengine.query.Query;
 import com.googlecode.cqengine.resultset.ResultSet;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import de.hska.muon.model.Category;
 import de.hska.muon.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,11 +45,13 @@ public class ProductClient {
     private static final String PRODUCT_SERVICE_URI = "http://product-service/products";
 
     private final RestTemplate restTemplate;
+
     // TODO: Is that the way to go?
     /*
      * caches all products.
      */
     private final IndexedCollection<Product> products = new ConcurrentIndexedCollection<>();
+
 
     @Autowired
     public ProductClient(final RestTemplate restTemplate) {
@@ -54,7 +66,8 @@ public class ProductClient {
      * @param userId The user who want't to store the given product.
      * @return The stored product.
      */
-    public Product createProduct(final Product product, final int userId) {
+    @HystrixCommand
+    public Product createProduct(final Product product, final Integer userId) {
         // TODO: Is the categoryId set here already or do we have to set it manually?
         products.add(product);
         HttpEntity<Product> request = new HttpEntity<>(product, createHeaderWithUserId(userId));
@@ -68,17 +81,18 @@ public class ProductClient {
      * @param maxPrice
      * @return
      */
+    @HystrixCommand(fallbackMethod = "getProductsCache")
     public Collection<Product> getProducts(final String query, final Integer minPrice, final Integer maxPrice) {
         final String _query;
         if (query == null) _query = "";
         else _query = query.trim();
 
-        final double _minPrice;
-        if (minPrice == null) _minPrice = Double.MIN_VALUE;
+        final Integer _minPrice;
+        if (minPrice == null) _minPrice = Integer.MIN_VALUE;
         else _minPrice = minPrice;
 
-        final double _maxPrice;
-        if (maxPrice == null) _maxPrice = Double.MAX_VALUE;
+        final Integer _maxPrice;
+        if (maxPrice == null) _maxPrice = Integer.MAX_VALUE;
         else _maxPrice = maxPrice;
 
         final URI productsURI = UriComponentsBuilder.fromHttpUrl(PRODUCT_SERVICE_URI)
@@ -96,6 +110,11 @@ public class ProductClient {
                      .collect(Collectors.toList());   //
     }
 
+    public Collection<Product> getProductsCache(final String query, final Integer minPrice, final Integer maxPrice) {
+        return products;
+    }
+
+
     /**
      * Tries to retrieve aproductt with the given id.
      * If not product could be found with the given Id null will be returned.
@@ -103,7 +122,8 @@ public class ProductClient {
      * @param id The id of the product which should be retired.
      * @return The Product or null if no product could be found.
      */
-    public Product getProduct(final String id) {
+    @HystrixCommand
+    public Product getProduct(final Integer id) {
         final Product product = restTemplate.getForObject(PRODUCT_SERVICE_URI + id, Product.class);
         if (product == null)  return null;
 
@@ -116,8 +136,9 @@ public class ProductClient {
     /**
      * Deletes a product with the given id.
      */
-    public ResponseEntity<Void> deleteProduct(final String id, final int userId) {
-        products.removeIf(product -> product.getProductId().equals(id));
+    @HystrixCommand
+    public ResponseEntity<Void> deleteProduct(final Integer id, final Integer userId) {
+        products.removeIf(product -> product.getProductId() == id);
         HttpEntity<?> request = new HttpEntity<>(createHeaderWithUserId(userId));
         return restTemplate.exchange(PRODUCT_SERVICE_URI + "{productId}", HttpMethod.DELETE, request, Void.class, id);
     }
@@ -138,7 +159,7 @@ public class ProductClient {
                 .ifPresent(product::setCategoryName);  //
     }
 
-    private static Optional<Category> findCategory(final int id) {
+    private static Optional<Category> findCategory(final Integer id) {
         return Optional.empty();
     }
 
@@ -148,4 +169,6 @@ public class ProductClient {
             return rs.size() > 0;
         }
     }
+
+
 }
