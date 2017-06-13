@@ -1,5 +1,6 @@
 package de.hska.muon.client;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import de.hska.muon.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
@@ -45,6 +46,7 @@ public class CategoryClient {
      *
      * @return The category.
      */
+    @HystrixCommand
     public Category createCategory(final Category category, final int userId) {
         HttpEntity<Category> request = new HttpEntity<>(category, createHeaderWithUserId(userId));
         return restTemplate.postForObject(CATEGORY_SERVICE_URL, request, Category.class);
@@ -57,6 +59,7 @@ public class CategoryClient {
      *
      * @return The category if the category could be found, null otherwise.
      */
+    @HystrixCommand
     public Optional<Category> getCategory(final int id) {
         return Optional.ofNullable(restTemplate.getForObject(CATEGORY_SERVICE_URL + "{categoryId}", Category.class, id));
     }
@@ -69,6 +72,7 @@ public class CategoryClient {
      *
      * @return TODO:
      */
+    @HystrixCommand
     public ResponseEntity<Void> deleteCategory(final int id, final int userId) {
         // 1. We need to delete all products which belong to the category
 
