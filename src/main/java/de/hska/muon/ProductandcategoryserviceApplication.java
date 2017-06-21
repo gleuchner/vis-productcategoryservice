@@ -9,6 +9,9 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -17,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableCircuitBreaker
 @EnableHystrix
 @EnableHystrixDashboard
+@EnableResourceServer
 @RibbonClient("productcategory-service")
 public class ProductandcategoryserviceApplication {
 
@@ -29,5 +33,16 @@ public class ProductandcategoryserviceApplication {
     @Bean
     RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Primary
+    @Bean
+    public RemoteTokenServices tokenService() {
+        RemoteTokenServices tokenService = new RemoteTokenServices();
+        tokenService.setCheckTokenEndpointUrl(
+                "http://authserver:8763/oauth/check_token");
+        tokenService.setClientId("my-client-with-secret");
+        tokenService.setClientSecret("secret");
+        return tokenService;
     }
 }
