@@ -28,8 +28,8 @@ public class CategoryClient {
     private final RestTemplate restTemplate;
 
     @Autowired
-    public CategoryClient(final RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public CategoryClient(final RestTemplate oAuthRestTemplate) {
+        this.restTemplate = oAuthRestTemplate;
     }
 
     // -- Category-Api

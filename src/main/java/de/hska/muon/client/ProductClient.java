@@ -25,10 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,8 +51,8 @@ public class ProductClient {
 
 
     @Autowired
-    public ProductClient(final RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public ProductClient(final RestTemplate oAuthRestTemplate) {
+        this.restTemplate = oAuthRestTemplate;
         products.addIndex(NavigableIndex.onAttribute(Product.CATEGORY_ID));
     }
 
@@ -111,7 +108,7 @@ public class ProductClient {
     }
 
     public Collection<Product> getProductsCache(final String query, final Integer minPrice, final Integer maxPrice) {
-        return ;
+        return new ArrayList<Product>();
     }
 
 
