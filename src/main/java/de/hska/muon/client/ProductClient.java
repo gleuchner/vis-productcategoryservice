@@ -111,7 +111,7 @@ public class ProductClient {
     }
 
     public Collection<Product> getProductsCache(final String query, final Integer minPrice, final Integer maxPrice) {
-        return products;
+        return ;
     }
 
 
