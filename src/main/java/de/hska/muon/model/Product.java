@@ -21,8 +21,6 @@ public class Product {
     private String details;
     private String name;
     private Integer price;
-
-    private String categoryName;
     private Integer categoryId;
 
 
@@ -77,15 +75,6 @@ public class Product {
         this.categoryId = categoryId;
     }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(final String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-
     @Override
     public String toString() {
         return "Product{" +
@@ -93,37 +82,31 @@ public class Product {
                 ", details='" + details + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
-                ", categoryName='" + categoryName + '\'' +
                 ", categoryId=" + categoryId +
                 '}';
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final Product product = (Product) o;
+        Product product = (Product) o;
 
-        if (price != product.price) return false;
-        if (categoryId != product.categoryId) return false;
-        if (productId != product.productId) return false;
+        if (productId != null ? !productId.equals(product.productId) : product.productId != null) return false;
         if (details != null ? !details.equals(product.details) : product.details != null) return false;
         if (name != null ? !name.equals(product.name) : product.name != null) return false;
-        return categoryName != null ? categoryName.equals(product.categoryName) : product.categoryName == null;
+        if (price != null ? !price.equals(product.price) : product.price != null) return false;
+        return categoryId != null ? categoryId.equals(product.categoryId) : product.categoryId == null;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = 31 *  productId;
+        int result = productId != null ? productId.hashCode() : 0;
         result = 31 * result + (details != null ? details.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + price;
-        result = 31 * result + (categoryName != null ? categoryName.hashCode() : 0);
-        result = 31 * result + categoryId;
+        result = 31 * result + (price != null ? price.hashCode() : 0);
+        result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
         return result;
     }
-
 }
