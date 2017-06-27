@@ -42,7 +42,7 @@ public class CategoryClient {
      * @param userId   The user who want's to create the category.
      * @return The category.
      */
-//    @HystrixCommand
+    @HystrixCommand
     public Category createCategory(final Category category, final int userId) {
         HttpEntity<Category> request = new HttpEntity<>(category, createHeaderWithUserId(userId));
         return restTemplate.postForObject(CATEGORY_SERVICE_URL, request, Category.class);
@@ -54,7 +54,7 @@ public class CategoryClient {
      * @param id The id of the category.
      * @return The category if the category could be found, null otherwise.
      */
-//    @HystrixCommand
+    @HystrixCommand
     public Optional<Category> getCategory(final int id) {
         return Optional.ofNullable(restTemplate.getForObject(CATEGORY_SERVICE_URL + "/{categoryId}", Category.class, id));
     }
@@ -66,7 +66,7 @@ public class CategoryClient {
      * @param userId The user who want's to delete the given category.
      * @return TODO:
      */
-//    @HystrixCommand
+    @HystrixCommand
     public ResponseEntity<Void> deleteCategory(final int id, final int userId) {
         // 1. We need to delete all products which belong to the category
 

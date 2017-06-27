@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collection;
+
 /**
  * This class represents the rest-api of the product and category composite-service.
  *
@@ -61,7 +63,8 @@ public class ProductCategoryService {
     // -- Category-API
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     public ResponseEntity<Iterable<Category>> getCategories() {
-        return new ResponseEntity<>(categories.getCategories(), HttpStatus.OK);
+        Collection<Category> categories = this.categories.getCategories();
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.GET)
