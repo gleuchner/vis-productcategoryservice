@@ -5,10 +5,7 @@ import de.hska.muon.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -42,11 +39,10 @@ public class CategoryClient {
      * Creates a category.
      *
      * @param category The category that should be created.
-     * @param userId The user who want's to create the category.
-     *
+     * @param userId   The user who want's to create the category.
      * @return The category.
      */
-    @HystrixCommand
+//    @HystrixCommand
     public Category createCategory(final Category category, final int userId) {
         HttpEntity<Category> request = new HttpEntity<>(category, createHeaderWithUserId(userId));
         return restTemplate.postForObject(CATEGORY_SERVICE_URL, request, Category.class);
@@ -56,30 +52,28 @@ public class CategoryClient {
      * Tries to retrieve the category for the given id.
      *
      * @param id The id of the category.
-     *
      * @return The category if the category could be found, null otherwise.
      */
-    @HystrixCommand
+//    @HystrixCommand
     public Optional<Category> getCategory(final int id) {
-        return Optional.ofNullable(restTemplate.getForObject(CATEGORY_SERVICE_URL + "{categoryId}", Category.class, id));
+        return Optional.ofNullable(restTemplate.getForObject(CATEGORY_SERVICE_URL + "/{categoryId}", Category.class, id));
     }
 
     /**
      * Deletes the category with the given id.
      *
-     * @param id The id of the category, that should be deleted.
+     * @param id     The id of the category, that should be deleted.
      * @param userId The user who want's to delete the given category.
-     *
      * @return TODO:
      */
-    @HystrixCommand
+//    @HystrixCommand
     public ResponseEntity<Void> deleteCategory(final int id, final int userId) {
         // 1. We need to delete all products which belong to the category
 
         // 2. We need to delete the category.
 
         HttpEntity<HttpHeaders> request = new HttpEntity<>(createHeaderWithUserId(userId));
-        return restTemplate.exchange(CATEGORY_SERVICE_URL + "{categoryId}", HttpMethod.DELETE, request, Void.class, id);
+        return restTemplate.exchange(CATEGORY_SERVICE_URL + "/{categoryId}", HttpMethod.DELETE, request, Void.class, id);
     }
 
 }
