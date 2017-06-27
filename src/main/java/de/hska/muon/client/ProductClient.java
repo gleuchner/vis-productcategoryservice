@@ -34,7 +34,7 @@ import static de.hska.muon.client.Clients.createHeaderWithUserId;
 
 /**
  * This class is taking care of redirecting all the calls to the product-service.
- *
+ * <p>
  * Created by amish on 5/4/17.
  */
 @Component
@@ -60,7 +60,7 @@ public class ProductClient {
      * Creates a new Product in the product service.
      *
      * @param product The product which should be stored in the product service.
-     * @param userId The user who want't to store the given product.
+     * @param userId  The user who want't to store the given product.
      * @return The stored product.
      */
     @HystrixCommand
@@ -93,18 +93,18 @@ public class ProductClient {
         else _maxPrice = maxPrice;
 
         final URI productsURI = UriComponentsBuilder.fromHttpUrl(PRODUCT_SERVICE_URI)
-                                                    .queryParam("query", _query)        //
-                                                    .queryParam("minPrice", _minPrice)  //
-                                                    .queryParam("maxPrice", _maxPrice)  //
-                                                    .build()                                  //
-                                                    .encode()                                 //
-                                                    .toUri();                                 //
+                .queryParam("query", _query)        //
+                .queryParam("minPrice", _minPrice)  //
+                .queryParam("maxPrice", _maxPrice)  //
+                .build()                                  //
+                .encode()                                 //
+                .toUri();                                 //
 
         final Product[] products = restTemplate.getForObject(productsURI, Product[].class);
 
         return Stream.of(products)                    //
-                     .map(ProductClient::addCategory) //
-                     .collect(Collectors.toList());   //
+                .map(ProductClient::addCategory) //
+                .collect(Collectors.toList());   //
     }
 
     public Collection<Product> getProductsCache(final String query, final Integer minPrice, final Integer maxPrice) {
@@ -122,7 +122,7 @@ public class ProductClient {
     @HystrixCommand
     public Product getProduct(final Integer id) {
         final Product product = restTemplate.getForObject(PRODUCT_SERVICE_URI + id, Product.class);
-        if (product == null)  return null;
+        if (product == null) return null;
 
         addCategoryToProduct(product);
         // TODO: Test if this is really working right!
@@ -152,8 +152,7 @@ public class ProductClient {
     private static void addCategoryToProduct(Product product) {
         // !TODO error if no category with given id found
         findCategory(product.getCategoryId())
-                .map(Category::getName)                //
-                .ifPresent(product::setCategoryName);  //
+                .map(Category::getName);             //
     }
 
     private static Optional<Category> findCategory(final Integer id) {
