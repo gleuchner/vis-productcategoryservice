@@ -15,10 +15,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -136,8 +133,8 @@ public class ProductClient {
     @HystrixCommand
     public ResponseEntity<Void> deleteProduct(final Integer id, final Integer userId) {
         products.removeIf(product -> product.getProductId() == id);
-        HttpEntity<?> request = new HttpEntity<>(createHeaderWithUserId(userId));
-        return restTemplate.exchange(PRODUCT_SERVICE_URI + "{productId}", HttpMethod.DELETE, request, Void.class, id);
+        HttpEntity<HttpHeaders> request = new HttpEntity<>(createHeaderWithUserId(userId));
+        return restTemplate.exchange(PRODUCT_SERVICE_URI + "/{productId}", HttpMethod.DELETE, request, Void.class, id);
     }
 
 
