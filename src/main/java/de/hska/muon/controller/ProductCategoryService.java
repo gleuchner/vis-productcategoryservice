@@ -10,6 +10,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -48,12 +49,14 @@ public class ProductCategoryService {
         return new ResponseEntity<>(products.getProduct(id), HttpStatus.OK);
     }
 
+    @PreAuthorize("#oauth2.hasScope('write')")
     @RequestMapping(value = "/products/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProduct(@RequestHeader(value = "userId") final Integer userId,
                                               @PathVariable final Integer id) {
         return products.deleteProduct(id, userId);
     }
 
+    @PreAuthorize("#oauth2.hasScope('write')")
     @RequestMapping(value = "/products", method = RequestMethod.POST)
     public ResponseEntity<Product> createProduct(@RequestHeader(value = "userId") final Integer userId,
                                                  @RequestBody final Product product) {
@@ -74,6 +77,7 @@ public class ProductCategoryService {
                          .orElse(CATEGORY_NOT_FOUND);              //
     }
 
+    @PreAuthorize("#oauth2.hasScope('write')")
     @RequestMapping(value = "/categories/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteCategory(@RequestHeader(value = "userId") final Integer userId,
                                                @PathVariable final Integer id) {
@@ -85,6 +89,7 @@ public class ProductCategoryService {
         return categories.deleteCategory(id, userId);
     }
 
+    @PreAuthorize("#oauth2.hasScope('write')")
     @RequestMapping(value = "/categories", method = RequestMethod.POST, produces = { "application/json" })
     public ResponseEntity<Category> createCategory(@RequestHeader(value = "userId") final Integer userId,
                                                    @RequestBody final Category category) {
