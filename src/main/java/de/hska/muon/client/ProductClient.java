@@ -121,7 +121,7 @@ public class ProductClient {
      */
     @HystrixCommand
     public Product getProduct(final Integer id) {
-        final Product product = restTemplate.getForObject(PRODUCT_SERVICE_URI + id, Product.class);
+        final Product product = restTemplate.getForObject(PRODUCT_SERVICE_URI + "/{productId}", Product.class, id);
         if (product == null) return null;
 
         addCategoryToProduct(product);
