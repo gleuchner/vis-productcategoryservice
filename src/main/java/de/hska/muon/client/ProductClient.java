@@ -63,9 +63,10 @@ public class ProductClient {
     @HystrixCommand
     public Product createProduct(final Product product, final Integer userId) {
         // TODO: Is the categoryId set here already or do we have to set it manually?
-        products.add(product);
         HttpEntity<Product> request = new HttpEntity<>(product, createHeaderWithUserId(userId));
-        return restTemplate.postForObject(PRODUCT_SERVICE_URI, request, Product.class);
+        Product createdProduct = restTemplate.postForObject(PRODUCT_SERVICE_URI, request, Product.class);
+        products.add(createdProduct);
+        return createdProduct;
     }
 
 
@@ -132,7 +133,7 @@ public class ProductClient {
      */
     @HystrixCommand
     public ResponseEntity<Void> deleteProduct(final Integer id, final Integer userId) {
-        products.removeIf(product -> product.getProductId() == id);
+        products.removeIf(product -> product.getProductId().intValue() == id.intValue());
         HttpEntity<HttpHeaders> request = new HttpEntity<>(createHeaderWithUserId(userId));
         return restTemplate.exchange(PRODUCT_SERVICE_URI + "/{productId}", HttpMethod.DELETE, request, Void.class, id);
     }
